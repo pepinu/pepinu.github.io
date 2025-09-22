@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hayheap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #ffffff;
+        }
+        
+        .section {
+            padding: 80px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-gray {
+            background: #f8fafc;
+        }
+        
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #0f172a;
+        }
+        
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: #475569;
+            text-align: center;
+            margin-bottom: 60px;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Card grids */
+        .grid {
+            display: grid;
+            gap: 32px;
+        }
+        
+        .why-now-grid {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            margin-bottom: 60px;
+        }
+        
+        .why-now-card, .stat-card, .problem-card, .use-case-card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .why-now-card:hover, .use-case-card:hover {
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .why-now-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 16px;
+            stroke: #1d4ed8;
+            stroke-width: 2;
+            display: inline-block;
+        }
+        
+        .why-now-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        
+        .why-now-text {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        
+        /* Chart */
+        .chart-container {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin: 40px 0;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 380px;
+        }
+        
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        
+        .chart-subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        
+        .chart-sources {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        
+        .sources-label {
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .sources-text {
+            color: #64748b;
+            margin-left: 8px;
+        }
+        
+        .source-link {
+            color: #1d4ed8;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .source-link:hover {
+            color: #1e40af;
+            border-bottom-color: #1e40af;
+        }
+        
+        .methodology-note {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.4;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .methodology-note strong {
+            color: #475569;
+        }
+        
+        /* Market stats */
+        .market-stats {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            margin: 60px 0;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            margin-bottom: 6px;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        
+        /* Market context */
+        .market-context {
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .market-context h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+        
+        .market-context p {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .comparison-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .comparison-item {
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #1d4ed8;
+        }
+        
+        .comparison-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+        
+        .comparison-label {
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        
+        /* Sources */
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        .source-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        
+        .source-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+        
+        .source-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .source-card li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .source-card a {
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .source-card a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Problems */
+        .problems-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            margin-top: 40px;
+        }
+        
+        .problem-card {
+            text-align: left;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .problem-title {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+        
+        .problem-text {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        /* Use cases */
+        .use-case-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            margin-top: 40px;
+        }
+        
+        .use-case-card {
+            text-align: left;
+            border-left: 4px solid #1d4ed8;
+        }
+        
+        .use-case-card h4 {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .use-case-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Process flow */
+        .process-flow {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            margin: 48px 0;
+        }
+        
+        .process-step {
+            text-align: center;
+            padding: 24px;
+        }
+        
+        .process-number {
+            width: 44px;
+            height: 44px;
+            background: #1d4ed8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 12px;
+        }
+        
+        .process-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .process-text {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        /* Vision */
+        .vision {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .potential-content {
+            text-align: left;
+            max-width: 800px;
+            margin: 40px auto;
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        
+        .potential-content ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+        
+        .potential-content li {
+            margin-bottom: 12px;
+        }
+        
+        .potential-content ul ul {
+            margin-top: 8px;
+            list-style: circle;
+        }
+        
+        @media(max-width: 768px) {
+            .section {
+                padding: 60px 20px;
+            }
+            h2 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="section">
+        <div class="container" style="text-align:center; padding:100px 20px;">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="80" height="80" fill="#ffffff"/>
+                <path d="M20 30L40 20L60 30L40 40L20 30Z" fill="#6EE7B7"/>
+                <path d="M20 30V50L40 60V40L20 30Z" fill="#34D399"/>
+                <path d="M60 30V50L40 60V40L60 30Z" fill="#10B981"/>
+                <path d="M40 20L50 25L50 35L40 40L30 35L30 25L40 20Z" fill="#A7F3D0"/>
+                <circle cx="40" cy="45" r="5" fill="#065F46"/>
+                <path d="M40 45L40 70" stroke="#065F46" stroke-width="2" stroke-linecap="round"/>
+                <path d="M35 65L40 70L45 65" stroke="#065F46" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h1 style="font-size:2.5rem; font-weight:700; color:#0f172a; margin-bottom:16px;">
+                Hayheap
+            </h1>
+            <p style="font-size:1.25rem; color:#475569; max-width:700px; margin:0 auto;">
+                Mining world's research for actionable gems
+            </p>
+        </div>
+    </header>
+
+    <!-- Why Now -->
+    <section class="section section-gray">
+        <div class="container">
+            <h2>Why Now</h2>
+            <p class="section-subtitle">Academic output has exploded. AI can finally read it. Markets can't afford to wait.</p>
+            <div class="grid why-now-grid">
+                <div class="why-now-card">
+                    <svg class="why-now-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path d="M3 3v18h18"/>
+                    </svg>
+                    <h3 class="why-now-title">Research Explosion</h3>
+                    <p class="why-now-text">5M+ new papers each year, hidden across fragmented repositories.</p>
+                </div>
+                <div class="why-now-card">
+                    <svg class="why-now-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    <h3 class="why-now-title">AI Breakthrough</h3>
+                    <p class="why-now-text">Language models can now parse, classify, and connect millions of works.</p>
+                </div>
+                <div class="why-now-card">
+                    <svg class="why-now-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path d="M12 3v18m9-9H3"/>
+                    </svg>
+                    <h3 class="why-now-title">Market Urgency</h3>
+                    <p class="why-now-text">Companies seek talent and technologies earlier - ahead of mainstream adoption.</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Global Scientific Publications</h3>
+                <p class="chart-subtitle">Annual volumes in millions, 2018–2024</p>
+                <div class="chart-wrapper">
+                    <canvas id="publicationChart"></canvas>
+                </div>
+                <div class="chart-sources">
+                    <span class="sources-label">Sources:</span>
+                    <span class="sources-text">
+                        <a href="https://ncses.nsf.gov/pubs/nsb202333" class="source-link" target="_blank" rel="noopener">NSF Publications Output Report 2023</a>, 
+                        <a href="https://wordsrated.com/number-of-academic-papers-published-per-year/" class="source-link" target="_blank" rel="noopener">WordsRated Academic Papers Study</a>, 
+                        <a href="https://www.wipo.int/web-publications/global-innovation-index-2024/en/global-innovation-tracker.html" class="source-link" target="_blank" rel="noopener">WIPO Global Innovation Tracker 2024</a>
+                    </span>
+                    <div class="methodology-note">
+                        <strong>Note:</strong> Estimates vary by source and methodology. Different organizations use varying inclusion criteria (STEM vs. all fields), databases (Scopus vs. Web of Science), and counting methods, resulting in different absolute numbers while showing consistent growth trends.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Opportunity -->
+    <section class="section">
+        <div class="container">
+            <h2>Market Opportunity</h2>
+            <p class="section-subtitle">University research drives a multi-trillion-dollar innovation economy that remains largely invisible to markets.</p>
+            <div class="grid market-stats">
+                <div class="stat-card">
+                    <span class="stat-number">$104B</span>
+                    <div class="stat-label">University research expenditures (2023)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">$3.6B</span>
+                    <div class="stat-label">Annual licensing revenue (2023)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">$0.5-1.2T</span>
+                    <div class="stat-label">Estimated publication-driven market influence</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">714</span>
+                    <div class="stat-label">New commercial products launched (2023)</div>
+                </div>
+            </div>
+            
+            <div class="market-context">
+                <h3>Market Context</h3>
+                <p>University research represents a market comparable in size to major U.S. economic sectors:</p>
+                <div class="comparison-stats">
+                    <div class="comparison-item">
+                        <span class="comparison-number">$491B</span>
+                        <span class="comparison-label">U.S. Electric Power Industry (2023)</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comparison-number">$1.2T</span>
+                        <span class="comparison-label">U.S. E-commerce Sales (2024)</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comparison-number">$0.5-1.2T</span>
+                        <span class="comparison-label">University Research Market Influence</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problems -->
+    <section class="section section-gray">
+        <div class="container">
+            <h2>Problems We Solve</h2>
+            <p class="section-subtitle">Why breakthrough research fails to reach the market - and how we close the gap.</p>
+            <div class="grid problems-grid">
+                <div class="problem-card">
+                    <h4 class="problem-title">Lost Discoveries</h4>
+                    <p class="problem-text">Groundbreaking theses remain invisible to industry decision-makers.</p>
+                </div>
+                <div class="problem-card">
+                    <h4 class="problem-title">Talent Lag</h4>
+                    <p class="problem-text">Firms take months to find experts whose work is already public.</p>
+                </div>
+                <div class="problem-card">
+                    <h4 class="problem-title">Innovation Blindspots</h4>
+                    <p class="problem-text">VCs and R&D leaders miss clusters scattered across universities.</p>
+                </div>
+                <div class="problem-card">
+                    <h4 class="problem-title">IP Loss</h4>
+                    <p class="problem-text">Universities realize commercial potential only after optimal timing has passed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section">
+        <div class="container">
+            <h2>How It Works</h2>
+            <p class="section-subtitle">Transform scattered academic research into actionable intelligence with AI.</p>
+            <div class="grid process-flow">
+                <div class="process-step">
+                    <div class="process-number">1</div>
+                    <h4 class="process-title">Aggregate</h4>
+                    <p class="process-text">Collect theses, dissertations, and papers worldwide.</p>
+                </div>
+                <div class="process-step">
+                    <div class="process-number">2</div>
+                    <h4 class="process-title">Analyze</h4>
+                    <p class="process-text">AI extracts concepts, maps relationships, spots trends.</p>
+                </div>
+                <div class="process-step">
+                    <div class="process-number">3</div>
+                    <h4 class="process-title">Connect</h4>
+                    <p class="process-text">Link researchers, institutions, and collaboration networks.</p>
+                </div>
+                <div class="process-step">
+                    <div class="process-number">4</div>
+                    <h4 class="process-title">Surface</h4>
+                    <p class="process-text">Deliver insights: talent discovery, IP, and commercialization signals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="section section-gray">
+        <div class="container">
+            <h2>Use Cases</h2>
+            <p class="section-subtitle">Real-world applications that unlock hidden value in academic research.</p>
+            <div class="grid use-case-grid">
+                <div class="use-case-card">
+                    <h4>Talent Discovery</h4>
+                    <p>"Find researchers working on quantum error correction" → instant results with publication history, collaboration networks, and expertise depth.</p>
+                </div>
+                <div class="use-case-card">
+                    <h4>Technology Scouting</h4>
+                    <p>Identify emerging AI safety research clusters before they hit mainstream consciousness, giving you first-mover advantage.</p>
+                </div>
+                <div class="use-case-card">
+                    <h4>IP Intelligence</h4>
+                    <p>Surface university research with untapped commercial potential for licensing or acquisition before competitors notice.</p>
+                </div>
+                <div class="use-case-card">
+                    <h4>Investment Thesis</h4>
+                    <p>Map research activity to predict which fields will attract venture funding in the next 2-3 years.</p>
+                </div>
+                <div class="use-case-card">
+                    <h4>Academic Partnerships</h4>
+                    <p>Find the exact labs and professors whose work aligns with your R&D roadmap for strategic collaborations.</p>
+                </div>
+                <div class="use-case-card">
+                    <h4>Competitive Intelligence</h4>
+                    <p>Track which universities your competitors are recruiting from and what research domains they're monitoring.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision Closing -->
+    <section class="section">
+        <div class="container vision">
+            <h2>The Vision</h2>
+            <p class="section-subtitle">We're building a new lens on global research - connecting hidden talent and ideas with the markets that need them most.</p>
+        </div>
+    </section>
+
+    <!-- Potential & Future -->
+    <section class="section section-gray">
+        <div class="container vision">
+            <h2>The Potential</h2>
+            <p class="section-subtitle">
+                Hayheap is more than a search tool - it's the foundation for a living knowledge graph of research, people, and markets.
+            </p>
+            <div class="potential-content">
+                <ul>
+                    <li><strong>Shifting recruitment models:</strong> As AI tools increasingly help candidates pass technical screens, hiring will rely less on rote skill tests and more on understanding genuine expertise, curiosity, and emerging research contributions.</li>
+                    <li><strong>Future use-cases we can't yet see:</strong> A comprehensive research-to-people map enables possibilities we haven't imagined - from forecasting under- or over-funded domains, to spotting revolutions versus incremental improvements.</li>
+                    <li><strong>Radar for science & markets:</strong> Correctly mapped, this system becomes a "radar" for:
+                        <ul>
+                            <li>Where talent pools are emerging</li>
+                            <li>Which research areas are poised for commercialization</li>
+                            <li>Which fields are at risk of hype vs. genuine breakthroughs (think the superconductivity craze)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Beyond today's horizon:</strong> By anchoring insights in a durable knowledge base, Hayheap can support not just recruiting and venture scouting, but also science policy, national R&D strategy, and entirely new market categories.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Sources -->
+    <section class="section">
+        <div class="container">
+            <h2>Data Sources</h2>
+            <p class="section-subtitle">Our market sizing and research statistics are sourced from authoritative industry and government reports.</p>
+            <div class="sources-grid">
+                <div class="source-card">
+                    <h4>University Research Data</h4>
+                    <ul>
+                        <li><a href="https://autm.net" target="_blank" rel="noopener">AUTM 2023 Licensing Survey</a> - $104B research expenditures, $3.6B licensing revenue, 714 new products</li>
+                        <li><a href="https://ncses.nsf.gov/pubs/nsb202333" target="_blank" rel="noopener">NSF Science & Engineering Indicators 2023</a> - Patent and innovation metrics</li>
+                    </ul>
+                </div>
+                <div class="source-card">
+                    <h4>Publication Trends</h4>
+                    <ul>
+                        <li><a href="https://wordsrated.com/number-of-academic-papers-published-per-year/" target="_blank" rel="noopener">WordsRated Academic Publishing Study</a> - 5.14M papers annually</li>
+                        <li><a href="https://www.wipo.int/web-publications/global-innovation-index-2024/en/" target="_blank" rel="noopener">WIPO Global Innovation Index 2024</a> - Publication decline trends</li>
+                    </ul>
+                </div>
+                <div class="source-card">
+                    <h4>Market Comparisons</h4>
+                    <ul>
+                        <li><a href="https://www.eia.gov/electricity/data/browser/" target="_blank" rel="noopener">U.S. Energy Information Administration</a> - $491B electric power industry (2023)</li>
+                        <li><a href="https://www.census.gov/retail/mrts/www/data/pdf/ec_current.pdf" target="_blank" rel="noopener">U.S. Census Bureau</a> - $1.2T e-commerce sales (2024)</li>
+                    </ul>
+                </div>
+                <div class="source-card">
+                    <h4>Economic Impact Analysis</h4>
+                    <ul>
+                        <li><a href="https://www.bio.org/sites/default/files/legacy/bioorg/docs/files/Economic_Contribution_Report_BIO_AUTM_JUN2019_web.pdf" target="_blank" rel="noopener">BIO Economic Impact Study 2022</a> - University invention economic contributions</li>
+                        <li>Market influence calculations based on 1-2% typical royalty rates and non-IP research impact multipliers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const ctx = document.getElementById('publicationChart').getContext('2d');
+        
+        const data = {
+            labels: ['2018', '2019', '2020', '2021', '2022', '2023', '2024*'],
+            datasets: [{
+                label: 'Publications (M)',
+                data: [4.18, 4.35, 4.73, 5.13, 5.31, 5.05, 5.10],
+                borderColor: '#1d4ed8',
+                backgroundColor: 'rgba(29, 78, 216, 0.05)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#1d4ed8',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        };
+        
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 6,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + 'M papers';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#f1f5f9'
+                        },
+                        ticks: {
+                            color: '#64748b'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#f1f5f9'
+                        },
+                        ticks: {
+                            color: '#64748b'
+                        },
+                        min: 3.8,
+                        max: 5.5
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        };
+        
+        new Chart(ctx, config);
+    </script>
+</body>
+</html>
